@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arnhav — Software Engineer</title>
+<meta name="description" content="Arnhav is a software engineer at a Series A startup.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23101418'/><text x='3' y='12' font-family='monospace' font-size='10' fill='%237ee787'>&gt;_</text></svg>">
+<style>
+  :root { --bg: #0d1117; --fg: #c9d1d9; --dim: #8b949e; --accent: #7ee787; --link: #79c0ff; --warn: #ffa657; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); }
+  body { font: 15px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; padding: 24px; max-width: 860px; margin: 0 auto; min-height: 100vh; }
+  a { color: var(--link); }
+  h2 { font-size: inherit; color: var(--accent); margin: 1.5em 0 .25em; }
+  p, ul { margin: 0 0 .5em; }
+  ul { padding-left: 2ch; list-style: "- "; }
+  .dim { color: var(--dim); }
+  .warn { color: var(--warn); }
+  .prompt { color: var(--accent); white-space: nowrap; }
+  .prompt b { color: var(--link); font-weight: normal; }
+  pre.banner { color: var(--accent); margin: 0 0 1em; font-size: 14px; line-height: 1.2; overflow-x: auto; }
+  .line { display: flex; gap: 1ch; }
+  .block { margin: 0 0 1em; white-space: normal; }
+  button.cmd { all: unset; color: var(--warn); cursor: pointer; }
+  button.cmd:hover, button.cmd:focus-visible { text-decoration: underline; }
+  #input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--fg); font: inherit; font-size: 16px; caret-color: var(--accent); padding: 0; min-width: 0; }
+  .help { display: grid; grid-template-columns: max-content 1fr; column-gap: 3ch; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  /* With JS the terminal takes over; without it the content below is the whole page. */
+  .js #content, #term { display: none; }
+  .js #term { display: block; }
+  @media (max-width: 600px) { body { padding: 14px; font-size: 14px; } pre.banner { font-size: 10px; } }
+</style>
+</head>
+<body>
+
+<div id="term">
+  <div id="out" aria-live="polite"></div>
+  <form class="line" id="form" autocomplete="off">
+    <label for="input" class="prompt">guest@arnhav.dev:<b>~</b>$</label>
+    <input id="input" spellcheck="false" autocapitalize="off" autofocus aria-label="Type a command, or 'help'">
+  </form>
+</div>
+
+<!-- Every [data-cmd] section is a terminal command. Edit content here; the JS picks it up. -->
+<main id="content">
+  <section data-cmd="banner">
+<pre class="banner" aria-label="arnhav">
+   __ _ _ __ _ __ | |__   __ ___   __
+  / _` | '__| '_ \| '_ \ / _` \ \ / /
+ | (_| | |  | | | | | | | (_| |\ V /
+  \__,_|_|  |_| |_|_| |_|\__,_| \_/
+</pre>
+    <p>Welcome to arnhav.dev. <span class="dim">Type a command or click one below.</span></p>
+  </section>
+
+  <section data-cmd="about" data-desc="who I am">
+    <h2>about</h2>
+    <p>Hi, I'm Arnhav. I'm a software engineer at a Series A startup, where I work across the stack and ship product.</p>
+    <!-- TODO: one or two lines on what you care about / what you're good at -->
+    <p>Outside work I build bots, small games, and tools for people I know.</p>
+  </section>
+
+  <section data-cmd="work" data-desc="where I've worked">
+    <h2>work</h2>
+    <!-- TODO: real company names, dates, one-line impact each -->
+    <ul>
+      <li><span class="warn">Software Engineer</span> @ [Startup] <span class="dim">(20XX–now)</span><br>What you own and one result you're proud of.</li>
+      <li><span class="warn">[Previous role]</span> @ [Company] <span class="dim">(20XX–20XX)</span><br>One line.</li>
+    </ul>
+  </section>
+
+  <section data-cmd="projects" data-desc="things I've built">
+    <h2>projects</h2>
+    <!-- TODO: add repo links -->
+    <ul>
+      <li><span class="warn">liaa-bot</span>: custom Twitch bot for a streamer's ASMR streams, with chat commands and an on-stream overlay client.</li>
+      <li><span class="warn">PheliaBot</span>: Discord bot that posts YouTube upload notifications.</li>
+    </ul>
+  </section>
+
+  <section data-cmd="contact" data-desc="how to reach me">
+    <h2>contact</h2>
+    <!-- TODO: fill in real handles -->
+    <ul>
+      <li>email&nbsp;&nbsp;&nbsp;&nbsp;<a href="mailto:hello@arnhav.dev">hello@arnhav.dev</a></li>
+      <li>github&nbsp;&nbsp;&nbsp;<a href="https://github.com/YOUR_GITHUB">github.com/YOUR_GITHUB</a></li>
+      <li>linkedin&nbsp;<a href="https://www.linkedin.com/in/YOUR_LINKEDIN">linkedin.com/in/YOUR_LINKEDIN</a></li>
+    </ul>
+  </section>
+
+  <section data-cmd="resume" data-desc="download my resume">
+    <h2>resume</h2>
+    <!-- Drop resume.pdf into public/ and this link works. -->
+    <p><a href="/resume.pdf">resume.pdf</a></p>
+  </section>
+</main>
+
+<script>
+document.documentElement.classList.add("js");
+const out = document.getElementById("out");
+const input = document.getElementById("input");
+const sections = {}, descs = {};
+document.querySelectorAll("[data-cmd]").forEach((s) => {
+  sections[s.dataset.cmd] = s.innerHTML.replace(/<h2>.*?<\/h2>/, "");
+  if (s.dataset.desc) descs[s.dataset.cmd] = s.dataset.desc;
+});
+descs.clear = "clear the screen";
+
+const button = (c) => `<button class="cmd" data-run="${c}">${c}</button>`;
+const commands = {
+  help: () => `<div class="help">${Object.entries(descs).map(([c, d]) => `${button(c)}<span class="dim">${d}</span>`).join("")}</div>`,
+  clear: () => { out.innerHTML = ""; },
+  sudo: () => `<p class="warn">guest is not in the sudoers file. This incident will be reported.</p>`,
+  ...Object.fromEntries(Object.entries(sections).map(([k, v]) => [k, () => v])),
+};
+commands.ls = commands.help;
+
+function print(html) {
+  const div = document.createElement("div");
+  div.className = "block";
+  div.innerHTML = html;
+  out.appendChild(div);
+}
+
+function run(raw) {
+  const cmd = raw.trim().split(/\s+/)[0].toLowerCase();
+  const echo = document.createElement("div");
+  echo.className = "line";
+  echo.innerHTML = `<span class="prompt">guest@arnhav.dev:<b>~</b>$</span>`;
+  echo.append(raw); // user text added as plain text, never as HTML
+  out.appendChild(echo);
+  if (!cmd) return;
+  if (raw.trim()) hist.push(raw.trim());
+  hi = hist.length;
+  const result = commands[cmd] ? commands[cmd]() : `<p>command not found: ${cmd.replace(/[<>&"]/g, "")}. Try ${button("help")}.</p>`;
+  if (result) print(result);
+  input.scrollIntoView({ block: "end" });
+}
+
+const hist = [];
+let hi = 0;
+document.getElementById("form").addEventListener("submit", (e) => { e.preventDefault(); run(input.value); input.value = ""; });
+input.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp" && hi > 0) { input.value = hist[--hi]; e.preventDefault(); }
+  else if (e.key === "ArrowDown") { hi = Math.min(hi + 1, hist.length); input.value = hist[hi] || ""; e.preventDefault(); }
+  else if (e.key === "Tab" && input.value) {
+    const match = Object.keys(commands).filter((c) => c.startsWith(input.value.toLowerCase()));
+    if (match.length) { e.preventDefault(); if (match.length === 1) input.value = match[0]; else print(`<p class="dim">${match.join("  ")}</p>`); }
+  } else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); commands.clear(); }
+});
+out.addEventListener("click", (e) => { const c = e.target.dataset?.run; if (c) { run(c); input.focus({ preventScroll: true }); } });
+document.addEventListener("click", (e) => { if (!getSelection().toString() && !e.target.closest("a, button")) input.focus(); });
+
+print(sections.banner);
+run("help");
+</script>
+</body>
+</html>

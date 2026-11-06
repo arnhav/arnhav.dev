@@ -1,0 +1,11 @@
+{
+  "name": "arnhav.dev",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
