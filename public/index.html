@@ -111,12 +111,12 @@ document.querySelectorAll("[data-cmd]").forEach((s) => {
   sections[s.dataset.cmd] = s.innerHTML.replace(/<h2>.*?<\/h2>/, "");
   if (s.dataset.desc) descs[s.dataset.cmd] = s.dataset.desc;
 });
-descs.clear = "clear the screen";
+descs.clear = "clear the output";
 
 const button = (c) => `<button class="cmd" data-run="${c}">${c}</button>`;
 const commands = {
   help: () => `<div class="help">${Object.entries(descs).map(([c, d]) => `${button(c)}<span class="dim">${d}</span>`).join("")}</div>`,
-  clear: () => { out.innerHTML = ""; },
+  clear: () => { out.innerHTML = ""; print(sections.banner); print(commands.help()); }, // keep the welcome + command list so visitors are never left with a blank page
   sudo: () => `<p class="warn">guest is not in the sudoers file. This incident will be reported.</p>`,
   ...Object.fromEntries(Object.entries(sections).map(([k, v]) => [k, () => v])),
 };
