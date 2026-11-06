@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Arnhav — Software Engineer</title>
-<meta name="description" content="Arnhav is a software engineer at a Series A startup.">
+<title>Arnhav Iyengar — Software Engineer</title>
+<meta name="description" content="Arnhav Iyengar is a senior software engineer at Meritize in Austin, TX.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23101418'/><text x='3' y='12' font-family='monospace' font-size='10' fill='%237ee787'>&gt;_</text></svg>">
 <style>
   :root { --bg: #0d1117; --fg: #c9d1d9; --dim: #8b949e; --accent: #7ee787; --link: #79c0ff; --warn: #ffa657; }
@@ -57,43 +57,47 @@
 
   <section data-cmd="about" data-desc="who I am">
     <h2>about</h2>
-    <p>Hi, I'm Arnhav. I'm a software engineer at a Series A startup, where I work across the stack and ship product.</p>
-    <!-- TODO: one or two lines on what you care about / what you're good at -->
-    <p>Outside work I build bots, small games, and tools for people I know.</p>
+    <p>Hi, I'm Arnhav Iyengar, a senior software engineer in Austin, TX. At Meritize, a Series A startup, I build the systems behind student loan decisions, from the rules engine to the infrastructure it runs on.</p>
+    <p>Outside work I build Atlas, a Minecraft RPG server, plus small tools for people I know.</p>
+    <p class="dim">Java · TypeScript · PHP · Ruby · Python · PostgreSQL · MySQL · Redis · Docker</p>
   </section>
 
   <section data-cmd="work" data-desc="where I've worked">
     <h2>work</h2>
-    <!-- TODO: real company names, dates, one-line impact each -->
+    <p><span class="warn">Meritize</span>, Senior Software Engineer <span class="dim">(Mar 2022–now)</span></p>
     <ul>
-      <li><span class="warn">Software Engineer</span> @ [Startup] <span class="dim">(20XX–now)</span><br>What you own and one result you're proud of.</li>
-      <li><span class="warn">[Previous role]</span> @ [Company] <span class="dim">(20XX–20XX)</span><br>One line.</li>
+      <li>Architected and built an in-house loan origination system that replaced a $15,000/month vendor. It processes thousands of loan applications a day through a deterministic, stateless rules engine that uses credit and merit data.</li>
+      <li>Led a zero-downtime database refactor: unified three IDs into one, split 50+ column tables into normalized 5–10 column tables, and added a data warehouse to keep analytics queries off the operational databases.</li>
+      <li>Moved our apps from IBM Cloud to self-hosted Dokku, cutting average load time by 4 seconds, deploy time by 80% and build/test time by 50%. Wrote a custom Concourse resource in Oil Shell so deploy pipelines are readable.</li>
+      <li>Reworked the internal operations portal around the new system, giving underwriters faster, more transparent decisions and letting compliance simulate loan decisions.</li>
+      <li>Modernized the applicant portal and the school admin portal to reduce applicant drop-off and make application status easier to track.</li>
+      <li>Built LaTeX contract generation with automatic DocuSign import, and a Cypress tool that lets compliance capture screenshots of any customer-facing app as it looked at any past point.</li>
+      <li>Built a standalone XML parsing app, and ran technical pair-programming interviews.</li>
+    </ul>
+    <p><span class="warn">National Driver Training</span>, Software Engineer <span class="dim">(Apr 2021–Feb 2022)</span></p>
+    <ul>
+      <li>Moved the web apps from dedicated physical servers to cloud virtual servers while keeping them compliant with infrastructure requirements.</li>
+      <li>Built an in-house PHP e-learning platform for driving lessons and exams.</li>
+    </ul>
+    <p><span class="warn">Forth-Rite Technologies</span>, Software Engineer Intern <span class="dim">(Jun–Aug 2018)</span></p>
+    <ul>
+      <li>Built a proof of concept for a digital mass flow controller alternative that read RS485 signals, showing potential cost savings.</li>
     </ul>
   </section>
 
   <section data-cmd="projects" data-desc="things I've built">
     <h2>projects</h2>
-    <!-- TODO: add repo links -->
     <ul>
-      <li><span class="warn">liaa-bot</span>: custom Twitch bot for a streamer's ASMR streams, with chat commands and an on-stream overlay client.</li>
-      <li><span class="warn">PheliaBot</span>: Discord bot that posts YouTube upload notifications.</li>
+      <li><span class="warn">Atlas</span> <a href="https://mc-atlas.com">mc-atlas.com</a><br>A Minecraft RPG server. I write its custom Java plugins (skills, crafting, quests, NPCs, magic and mounts) and the web API behind its site (Hono, Prisma, PostgreSQL, Discord login, Tebex payments).</li>
     </ul>
   </section>
 
-  <section data-cmd="contact" data-desc="how to reach me">
+  <section data-cmd="contact" data-desc="where to find me">
     <h2>contact</h2>
-    <!-- TODO: fill in real handles -->
     <ul>
-      <li>email&nbsp;&nbsp;&nbsp;&nbsp;<a href="mailto:hello@arnhav.dev">hello@arnhav.dev</a></li>
-      <li>github&nbsp;&nbsp;&nbsp;<a href="https://github.com/YOUR_GITHUB">github.com/YOUR_GITHUB</a></li>
-      <li>linkedin&nbsp;<a href="https://www.linkedin.com/in/YOUR_LINKEDIN">linkedin.com/in/YOUR_LINKEDIN</a></li>
+      <li>github&nbsp;&nbsp;&nbsp;<a href="https://github.com/arnhav">github.com/arnhav</a></li>
+      <li>linkedin&nbsp;<a href="https://www.linkedin.com/in/arnhav-iyengar/">linkedin.com/in/arnhav-iyengar</a></li>
     </ul>
-  </section>
-
-  <section data-cmd="resume" data-desc="download my resume">
-    <h2>resume</h2>
-    <!-- Drop resume.pdf into public/ and this link works. -->
-    <p><a href="/resume.pdf">resume.pdf</a></p>
   </section>
 </main>
 
