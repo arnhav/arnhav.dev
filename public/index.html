@@ -24,6 +24,13 @@
   .block { margin: 0 0 1em; white-space: normal; }
   button.cmd { all: unset; color: var(--warn); cursor: pointer; }
   button.cmd:hover, button.cmd:focus-visible { text-decoration: underline; }
+  .field { position: relative; flex: 1; display: flex; min-width: 0; }
+  #ghost { position: absolute; inset: 0 auto auto 0; pointer-events: none; color: var(--dim); font: inherit; font-size: 16px; white-space: pre; }
+  #ghost span { visibility: hidden; }
+  .bootline { margin: 0; white-space: pre; }
+  .bootline .ok { color: var(--accent); }
+  pre.vim { margin: 0; color: var(--link); line-height: 1.3; }
+  pre.vim .status { color: var(--fg); background: #30363d; }
   #input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--fg); font: inherit; font-size: 16px; caret-color: var(--accent); padding: 0; min-width: 0; }
   .help { display: grid; grid-template-columns: max-content 1fr; column-gap: 3ch; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -38,8 +45,11 @@
 <div id="term">
   <div id="out" aria-live="polite"></div>
   <form class="line" id="form" autocomplete="off">
-    <label for="input" class="prompt">guest@arnhav.dev:<b>~</b>$</label>
-    <input id="input" spellcheck="false" autocapitalize="off" autofocus aria-label="Type a command, or 'help'">
+    <label for="input" class="prompt" id="prompt">guest@arnhav.dev:<b>~</b>$</label>
+    <span class="field">
+      <input id="input" spellcheck="false" autocapitalize="off" autofocus aria-label="Type a command, or 'help'">
+      <span id="ghost" aria-hidden="true"></span>
+    </span>
   </form>
 </div>
 
@@ -113,53 +123,127 @@ document.querySelectorAll("[data-cmd]").forEach((s) => {
 });
 descs.clear = "clear the output";
 
+const ghost = document.getElementById("ghost");
+const promptEl = document.getElementById("prompt");
+const PROMPT = promptEl.innerHTML;
+const esc = (s) => s.replace(/[<>&"]/g, (c) => `&#${c.charCodeAt(0)};`);
 const button = (c) => `<button class="cmd" data-run="${c}">${c}</button>`;
+let vim = false;
+
 const commands = {
   help: () => `<div class="help">${Object.entries(descs).map(([c, d]) => `${button(c)}<span class="dim">${d}</span>`).join("")}</div>`,
   clear: () => { out.innerHTML = ""; print(sections.banner); print(commands.help()); }, // keep the welcome + command list so visitors are never left with a blank page
   sudo: () => `<p class="warn">guest is not in the sudoers file. This incident will be reported.</p>`,
+  vim: () => {
+    vim = true;
+    promptEl.textContent = "-- NORMAL --";
+    return `<pre class="vim">${"~\n".repeat(6)}<span class="status">"arnhav.txt" [readonly] 1L, 42B</span></pre><p class="dim">You're in vim now. Good luck getting out.</p>`;
+  },
+  emacs: () => `<p>emacs: command not found. This is a ${button("vim")} household.</p>`,
   ...Object.fromEntries(Object.entries(sections).map(([k, v]) => [k, () => v])),
 };
 commands.ls = commands.help;
+commands.vi = commands.nvim = commands.vim;
+const suggestable = ["help", ...Object.keys(descs)]; // hidden commands stay hidden
 
-function print(html) {
+function vimInput(cmd) {
+  if (!/^:(q|q!|wq|wq!|x|qa|qa!)$/.test(cmd)) return `<p class="warn">E492: Not an editor command: ${esc(cmd)}</p><p class="dim">Hint: type :q and press Enter.</p>`;
+  vim = false;
+  promptEl.innerHTML = PROMPT;
+  return `<p>You escaped vim. Most people don't.</p>`;
+}
+
+function print(html, cls = "block") {
   const div = document.createElement("div");
-  div.className = "block";
+  div.className = cls;
   div.innerHTML = html;
   out.appendChild(div);
+  return div;
 }
 
 function run(raw) {
   const cmd = raw.trim().split(/\s+/)[0].toLowerCase();
   const echo = document.createElement("div");
   echo.className = "line";
-  echo.innerHTML = `<span class="prompt">guest@arnhav.dev:<b>~</b>$</span>`;
+  echo.innerHTML = `<span class="prompt">${promptEl.innerHTML}</span>`;
   echo.append(raw); // user text added as plain text, never as HTML
   out.appendChild(echo);
   if (!cmd) return;
-  if (raw.trim()) hist.push(raw.trim());
+  hist.push(raw.trim());
   hi = hist.length;
-  const result = commands[cmd] ? commands[cmd]() : `<p>command not found: ${cmd.replace(/[<>&"]/g, "")}. Try ${button("help")}.</p>`;
+  const result = vim ? vimInput(cmd) : commands[cmd] ? commands[cmd]() : `<p>command not found: ${esc(cmd)}. Try ${button("help")}.</p>`;
   if (result) print(result);
+  // Shareable links: the URL follows the section on screen (arnhav.dev/#work).
+  if (!vim) history.replaceState(null, "", descs[cmd] && sections[cmd] ? "#" + cmd : location.pathname);
   input.scrollIntoView({ block: "end" });
+}
+
+// Ghost text: dimmed completion after the caret; Tab or → accepts it.
+function suggestion() {
+  const v = input.value.toLowerCase();
+  if (!v || input.selectionStart !== v.length) return "";
+  const pool = vim ? [":q"] : suggestable;
+  return (pool.find((c) => c.startsWith(v) && c !== v) || "").slice(v.length);
+}
+function updateGhost() {
+  const span = document.createElement("span");
+  span.textContent = input.value;
+  ghost.replaceChildren(span, suggestion());
 }
 
 const hist = [];
 let hi = 0;
-document.getElementById("form").addEventListener("submit", (e) => { e.preventDefault(); run(input.value); input.value = ""; });
+document.getElementById("form").addEventListener("submit", (e) => { e.preventDefault(); run(input.value); input.value = ""; updateGhost(); });
+input.addEventListener("input", updateGhost);
 input.addEventListener("keydown", (e) => {
+  const rest = suggestion();
   if (e.key === "ArrowUp" && hi > 0) { input.value = hist[--hi]; e.preventDefault(); }
   else if (e.key === "ArrowDown") { hi = Math.min(hi + 1, hist.length); input.value = hist[hi] || ""; e.preventDefault(); }
+  else if ((e.key === "Tab" || e.key === "ArrowRight") && rest) { input.value += rest; e.preventDefault(); }
   else if (e.key === "Tab" && input.value) {
-    const match = Object.keys(commands).filter((c) => c.startsWith(input.value.toLowerCase()));
-    if (match.length) { e.preventDefault(); if (match.length === 1) input.value = match[0]; else print(`<p class="dim">${match.join("  ")}</p>`); }
+    e.preventDefault();
+    const match = suggestable.filter((c) => c.startsWith(input.value.toLowerCase()));
+    if (match.length > 1) print(`<p class="dim">${match.join("  ")}</p>`);
   } else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); commands.clear(); }
+  requestAnimationFrame(updateGhost);
 });
 out.addEventListener("click", (e) => { const c = e.target.dataset?.run; if (c) { run(c); input.focus({ preventScroll: true }); } });
 document.addEventListener("click", (e) => { if (!getSelection().toString() && !e.target.closest("a, button")) input.focus(); });
+addEventListener("hashchange", () => { const c = location.hash.slice(1); if (descs[c] && sections[c]) run(c); });
 
-print(sections.banner);
-run("help");
+// Boot sequence: once per browser session, skippable with any key or click, off for reduced motion and deep links.
+const BOOT = [
+  "arnhav.dev bootloader v2026.11",
+  "[ OK ] Mounted /home/arnhav",
+  "[ OK ] Started coffee.service",
+  "[ OK ] Started career.service (Abode Money)",
+  "[ OK ] Started atlas.service",
+  "[ OK ] Reached target Personal Website",
+  "Starting shell...",
+];
+async function boot() {
+  if (sessionStorage.getItem("booted") || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  sessionStorage.setItem("booted", "1");
+  let skip = false;
+  const stop = () => { skip = true; };
+  addEventListener("keydown", stop, { once: true });
+  addEventListener("pointerdown", stop, { once: true });
+  for (const line of BOOT) {
+    if (skip) break;
+    print(line.replace("[ OK ]", '[ <span class="ok">OK</span> ]'), "bootline").setAttribute("aria-hidden", "true");
+    await new Promise((r) => setTimeout(r, 90 + Math.random() * 160));
+  }
+  if (!skip) await new Promise((r) => setTimeout(r, 400));
+  removeEventListener("keydown", stop);
+  removeEventListener("pointerdown", stop);
+  out.innerHTML = "";
+}
+
+const start = location.hash.slice(1);
+(descs[start] && sections[start] ? Promise.resolve() : boot()).then(() => {
+  print(sections.banner);
+  run(descs[start] && sections[start] ? start : "help");
+});
 </script>
 </body>
 </html>
